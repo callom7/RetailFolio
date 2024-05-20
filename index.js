@@ -1,6 +1,8 @@
 // import "./style.css";
 // Update the import path to reflect the new location
-
+if (window.location.pathname == '5500') {
+  window.location.href = 'index.html';
+}
 import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import { OrbitControls } from "https://unpkg.com/three@0.127.0/examples/jsm/controls/OrbitControls.js";
 import { FBXLoader } from "https://unpkg.com/three@0.127.0/examples/jsm/loaders/FBXLoader.js";
@@ -26,6 +28,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.render(scene, camera);
 camera.position.set(0, 25, -100);
 camera.near = 0.01;
+camera.rotation.set(-45, 0, 0);
 
 // Lights
 const pointLight = new THREE.PointLight(0xffffff);
@@ -127,7 +130,7 @@ moon.position.z = 0;
 // moon.position.setY(3);
 moon.position.set(25, 0, -25);
 moon.scale.set(2, 2, 2);
-CV.position.set(28, -4, -20);
+CV.position.set(-32, -4, -20);
 CV.scale.set(2.5, 2.5, 2.5);
 // scroll Animation
 const loader = new FBXLoader();
@@ -144,7 +147,7 @@ var movieMaterial = new THREE.MeshBasicMaterial({
 });
 let movieGeometry = new THREE.BoxBufferGeometry(3, 3, 3);
 let movieCubeScreen = new THREE.Mesh(movieGeometry, movieMaterial);
-movieCubeScreen.position.set(0, -1, -115);
+movieCubeScreen.position.set(-165, -1, -115);
 scene.add(movieCubeScreen);
 //scene.add(movieCubeScreen.position);
 video.play();
@@ -238,7 +241,8 @@ const MYCVPath = './assets/tunworker.glb';
 assetLoader.load(MYCVPath, function(gltf) {
   const model3 = gltf.scene; // Use a different variable for the second model
   scene.add(model3);
-  model3.rotation.y -= 90;
+  model3.rotation.y = 135;
+  model3.rotation.x = 0;
   model3.scale.set(2.5, 2.5, 2.5);
   model3.position.set(0, -8, 3);
   mixer3 = new THREE.AnimationMixer(model3);
@@ -309,13 +313,13 @@ assetLoader.load(MYCVPaperPath, function(gltf) {
   model4.traverse((child) => {
     if (child instanceof THREE.Mesh) {
       const textureLoader3 = new THREE.TextureLoader();
-      
+      model4.traverse(function(obj) { obj.frustumCulled = false; });
       const texture3 = textureLoader3.load('./assets/CVPaperDiffuse.png', function(texture3) {
         child.material.map = texture3;
         child.material.needsUpdate = true;
         //model4.position.setY(2);
         //model4.position.setZ(20);
-        model4.position.set(50, -8, -15);
+        model4.position.set(-10, -8, -15);
         //model2.rotation.setZ(90);
         model4.castShadow = true;
       });
@@ -381,7 +385,7 @@ function onDocumentTouchStart(event) {
       handleObjectClick(intersectedObject);
     }else if (intersectedObject.userData.objectType === 'model4') {
       console.log('CV was clicked!');
-      handleProjectClick(intersectedObject);
+      handleObjectClick(intersectedObject);
     }
      else if (intersectedObject.userData.objectType === 'AiStockCounter') {
       console.log('AiStockCounter was clicked!');
@@ -428,18 +432,43 @@ function onDocumentClick(event) {
 
 function handleObjectClick(object) {
   var currentURL = window.location.href;
-  // Check if the current page is nocv.html
-  if (currentURL.endsWith('index.html') || currentURL.endsWith('WebPortfolio/') || currentURL.endsWith('aistock.html')) {
-    // If on nocv.html, go back to index.html
-    window.location.href = 'nocv.html';
-  } else {
-    // If not on nocv.html, navigate to nocv.html
+  
+  // List of initial values to check against
+  var initialValues = [
+    'http://127.0.0.1:5500/',
+    'https://callom7.github.io/RetailFolio/'
+  ];
+  
+  // Check if the current URL starts with any of the initial values
+  var isInitialValue = initialValues.some(function(initialValue) {
+    return currentURL.startsWith(initialValue);
+  });
+  if(currentURL.endsWith('nocv.html')){
+    // Otherwise, navigate to index.html
     window.location.href = 'index.html';
+    console.log('Navigating to index.html');
   }
-
+  else if (isInitialValue) {
+    // If the current URL is one of the initial values, perform specific logic
+    console.log('Initial value detected:', currentURL);
+    window.location.href = 'nocv.html';
+    // Add any specific logic for initial values here if needed
+  } else {
+    // Check if the current page is index.html, WebPortfolio/, or aistock.html
+    if (currentURL.endsWith('index.html') || currentURL.endsWith('WebPortfolio/') || currentURL.endsWith('aistock.html')) {
+      // Navigate to nocv.html if on one of the specified pages
+      window.location.href = 'nocv.html';
+      console.log('Navigating to nocv.html');
+    } else if(currentURL.endsWith('nocv.html')){
+      // Otherwise, navigate to index.html
+      window.location.href = 'index.html';
+      console.log('Navigating to index.html');
+    }
+  }
 }
+
 function handleProjectClick(object) {
-  if (window.location.href.endsWith('index.html' || 'WebPortfolio/')) {
+  if (window.location.href.endsWith('index.html' || 'WebPortfolio/' || '')) {
     window.location.href = 'aistock.html';
   } else {
     window.location.href = 'aistock.html';
