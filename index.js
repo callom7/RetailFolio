@@ -5,6 +5,8 @@ import * as THREE from "https://unpkg.com/three@0.127.0/build/three.module.js";
 import { OrbitControls } from "https://unpkg.com/three@0.127.0/examples/jsm/controls/OrbitControls.js";
 import { FBXLoader } from "https://unpkg.com/three@0.127.0/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/GLTFLoader.js';
+import { RGBELoader } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/RGBELoader.js';
+import { AmmoPhysics } from "https://unpkg.com/three@0.127.0/examples/jsm/physics/AmmoPhysics.js";
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -21,8 +23,10 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-camera.position.set(0, 0, -30);
 renderer.render(scene, camera);
+camera.position.set(0, 25, -100);
+camera.near = 0.01;
+
 // Lights
 const pointLight = new THREE.PointLight(0xffffff);
 pointLight.position.set(0, 25, -100);
@@ -81,13 +85,13 @@ Array(250).fill().forEach(addStar);
 
 // changes bg
 const spaceTexture = new THREE.TextureLoader().load('Store.png')
-scene.background = spaceTexture;
-// const hdrTexturePath = './assets/Warehouse.hdr';
-// const loader2 = new RGBELoader();
-// loader2.load(hdrTexturePath, function(texture2){
-//   texture2.mapping = THREE.EquirectangularReflectionMapping;
-//   scene.background = texture2;
-// })
+// scene.background = spaceTexture;
+const hdrTexturePath = './assets/Warehouse.hdr';
+const loader2 = new RGBELoader();
+loader2.load(hdrTexturePath, function(texture2){
+  texture2.mapping = THREE.EquirectangularReflectionMapping;
+  scene.background = texture2;
+})
 // avatar
 
 const moonTexture = new THREE.TextureLoader().load('./assets/MetallerDiffuse.png')
@@ -138,9 +142,9 @@ var movieMaterial = new THREE.MeshBasicMaterial({
   side: THREE.FrontSide,
   toneMapped: false,
 });
-let movieGeometry = new THREE.BoxBufferGeometry(25, 25, 25);
+let movieGeometry = new THREE.BoxBufferGeometry(3, 3, 3);
 let movieCubeScreen = new THREE.Mesh(movieGeometry, movieMaterial);
-movieCubeScreen.position.set(0, 2, -150);
+movieCubeScreen.position.set(0, -1, -115);
 scene.add(movieCubeScreen);
 //scene.add(movieCubeScreen.position);
 video.play();
@@ -210,7 +214,7 @@ assetLoader.load(PaperPath, function(gltf) {
         child.material.map = texture3;
         child.material.needsUpdate = true;
         model2.position.setY(9.5);
-        model2.position.setZ(-25);
+        model2.position.setZ(-110);
         model2.position.setX(0);
         //model2.rotation.setZ(90);
         model2.castShadow = true;
@@ -246,11 +250,12 @@ assetLoader.load(MYCVPath, function(gltf) {
   
 
   // Iterate over the meshes in the model and apply the texture to each one
+  model3.traverse(function(obj) { obj.frustumCulled = false; });
   model3.traverse((child) => {
     if (child instanceof THREE.Mesh) {
       if (child.material === null) {
         const textureLoader3 = new THREE.TextureLoader();
-  
+        
         // Load and apply the diffuse texture
         const texture3 = textureLoader3.load('./assets/ParchmentPaperDiffuse.png', function(texture3) {
           child.material = new THREE.MeshStandardMaterial(); // Create a new material if it's null
@@ -476,7 +481,7 @@ const clock2 = new THREE.Clock();
 const clock3 = new THREE.Clock();
 const clock4 = new THREE.Clock();
 function animate() {
-
+  
   requestAnimationFrame(animate);
 
   if (videoTexture) {
